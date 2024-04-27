@@ -29,6 +29,8 @@ func NewMongoDBConnect() *MongoDBConnect {
 }
 
 func (m *MongoDBConnect) GetClient() (client *mongo.Client, err error) {
+
+	defer fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
 	// Use the SetServerAPIOptions() method to set the Stable API version to 1
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
@@ -37,8 +39,6 @@ func (m *MongoDBConnect) GetClient() (client *mongo.Client, err error) {
 	if err != nil {
 		panic(err)
 	}
-
-	defer fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
 
 	return
 }
