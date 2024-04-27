@@ -10,7 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// const uri = "mongodb://user:pass@sample.host:27017/?timeoutMS=5000"
 const uri = "mongodb://root:password@admin.localhost:27017/?timeoutMS=5000"
 
 type User struct {
@@ -20,11 +19,15 @@ type User struct {
 
 type MongoDBConnect struct{}
 
+type mongoDBConnect interface {
+	GetClient() (client *mongo.Client, err error)
+}
+
 func NewMongoDBConnect() *MongoDBConnect {
 	return &MongoDBConnect{}
 }
 
-func (m *MongoDBConnect) getClient() (client *mongo.Client, err error) {
+func (m *MongoDBConnect) GetClient() (client *mongo.Client, err error) {
 	// Use the SetServerAPIOptions() method to set the Stable API version to 1
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
@@ -38,6 +41,8 @@ func (m *MongoDBConnect) getClient() (client *mongo.Client, err error) {
 
 	return
 }
+
+func (m *MongoDBConnect)
 
 func main() {
 	mongoDB := NewMongoDBConnect()
