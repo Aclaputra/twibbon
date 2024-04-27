@@ -22,6 +22,7 @@ Twibbon is a social media tool that allows users to overlay images, such as ribb
 ```bash
 git clone https://github.com/Aclaputra/twibbon
 cd twibbon-server
+docker compose up -d
 go mod tidy
 go run .
 ```
