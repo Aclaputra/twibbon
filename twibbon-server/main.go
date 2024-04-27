@@ -21,6 +21,7 @@ type MongoDBConnect struct{}
 
 type mongoDBConnect interface {
 	GetClient() (client *mongo.Client, err error)
+	Ping(client *mongo.Client)
 }
 
 func NewMongoDBConnect() *MongoDBConnect {
@@ -42,32 +43,20 @@ func (m *MongoDBConnect) GetClient() (client *mongo.Client, err error) {
 	return
 }
 
-func (m *MongoDBConnect)
-
-func main() {
-	mongoDB := NewMongoDBConnect()
-	client, err := mongoDB.getClient()
-	if err != nil {
-		fmt.Println("not connected to db")
-		panic(err)
-	}
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
+func (m *MongoDBConnect) Ping(client *mongo.Client) {
 	// Send a ping to confirm a successful connection
 	var result bson.M
 	if err := client.Database("admiss").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
 		panic(err)
 	}
+}
 
+func ReadUsers(client *mongo.Client) {
 	coll := client.Database("test").Collection("user")
 	filter := bson.D{{"name", "Muhammad Acla"}}
 
 	var userResult User
-	err = coll.FindOne(context.TODO(), filter).Decode(&userResult)
+	err := coll.FindOne(context.TODO(), filter).Decode(&userResult)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -78,4 +67,22 @@ func main() {
 	}
 
 	fmt.Println(userResult)
+
+}
+
+func main() {
+	mongoDB := NewMongoDBConnect()
+	client, err := mongoDB.GetClient()
+	if err != nil {
+		fmt.Println("not connected to db")
+		panic(err)
+	}
+	defer func() {
+		if err = client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	mongoDB.Ping(client)
+	ReadUsers(client)
 }
