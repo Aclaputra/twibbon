@@ -14,21 +14,40 @@ type UserRepository struct {
 }
 
 type userRepository interface {
+	ReadUserByName(name string) (result models.User, err error)
 }
 
 func NewUserRepository(database *mongo.Database) *UserRepository {
-	// err := database.CreateCollection(context.TODO(), "user")
-	// if err != nil {
-	// 	fmt.Println("cannot create db")
-	// 	panic(err)
-	// }
+	names, err := database.ListCollectionNames(
+		context.TODO(),
+		bson.D{{"options.capped", true}},
+	)
+	if err != nil {
+		fmt.Printf("failed to get coll names: %v\n", err)
+	}
+
+	var found bool
+	for _, name := range names {
+		if name == "user" {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		err := database.CreateCollection(context.TODO(), "user")
+		if err != nil {
+			fmt.Println("db already exist")
+			// panic(err)
+		}
+	}
+
 	return &UserRepository{
 		coll: database.Collection("user"),
 	}
 }
 
 func (u *UserRepository) ReadUserByName(name string) (result models.User, err error) {
-	// coll := client.Database("test").Collection("user")
 	filter := bson.D{{"name", name}}
 	err = u.coll.FindOne(context.TODO(), filter).Decode(&result)
 
@@ -37,13 +56,14 @@ func (u *UserRepository) ReadUserByName(name string) (result models.User, err er
 			fmt.Println("error not found", filter)
 			return
 		}
-		panic(err)
+		fmt.Println(err)
+		// panic(err)
 	}
 
 	return
 }
 
-func (u *UserRepository) CreateUser(user models.User) (result models.User, err error) {
-
-	return
-}
+// func (u *UserRepository) CreateUser(user models.User) (result models.User, err error) {
+//
+// 	return
+// }
