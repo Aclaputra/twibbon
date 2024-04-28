@@ -37,8 +37,7 @@ func NewUserRepository(database *mongo.Database) *UserRepository {
 	if !found {
 		err := database.CreateCollection(context.TODO(), "user")
 		if err != nil {
-			fmt.Println("db already exist")
-			// panic(err)
+			fmt.Println(err)
 		}
 	}
 
@@ -57,7 +56,6 @@ func (u *UserRepository) ReadUserByName(name string) (result models.User, err er
 			return
 		}
 		fmt.Println(err)
-		// panic(err)
 	}
 
 	return
