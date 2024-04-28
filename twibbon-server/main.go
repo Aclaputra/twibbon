@@ -3,32 +3,27 @@ package main
 import (
 	"context"
 	"fmt"
+	"twibbon-server/repository"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const uri = "mongodb://root:password@admin.localhost:27017/?timeoutMS=5000"
 
-type User struct {
-	ID   primitive.ObjectID `bson:"_id"`
-	Name string
-}
+type MongoDB struct{}
 
-type MongoDBConnect struct{}
-
-type mongoDBConnect interface {
+type mongoDB interface {
 	GetClient() (client *mongo.Client, err error)
 	Ping(client *mongo.Client)
 }
 
-func NewMongoDBConnect() *MongoDBConnect {
-	return &MongoDBConnect{}
+func NewMongoDB() *MongoDB {
+	return &MongoDB{}
 }
 
-func (m *MongoDBConnect) GetClient() (client *mongo.Client, err error) {
+func (m *MongoDB) GetClient() (client *mongo.Client, err error) {
 
 	defer fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
 	// Use the SetServerAPIOptions() method to set the Stable API version to 1
@@ -43,7 +38,11 @@ func (m *MongoDBConnect) GetClient() (client *mongo.Client, err error) {
 	return
 }
 
-func (m *MongoDBConnect) Ping(client *mongo.Client) {
+func (m *MongoDB) ConnectTwibbon(ctx context.Context, client *mongo.Client) (db *mongo.Database, err error) {
+	return client.Database("twibbon_db"), nil
+}
+
+func (m *MongoDB) Ping(client *mongo.Client) {
 	// Send a ping to confirm a successful connection
 	var result bson.M
 	if err := client.Database("admiss").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
@@ -51,27 +50,8 @@ func (m *MongoDBConnect) Ping(client *mongo.Client) {
 	}
 }
 
-func ReadUsers(client *mongo.Client) {
-	coll := client.Database("test").Collection("user")
-	filter := bson.D{{"name", "Muhammad Acla"}}
-
-	var userResult User
-	err := coll.FindOne(context.TODO(), filter).Decode(&userResult)
-
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			fmt.Println("error no found", filter)
-			return
-		}
-		panic(err)
-	}
-
-	fmt.Println(userResult)
-
-}
-
 func main() {
-	mongoDB := NewMongoDBConnect()
+	mongoDB := NewMongoDB()
 	client, err := mongoDB.GetClient()
 	if err != nil {
 		fmt.Println("not connected to db")
@@ -83,6 +63,16 @@ func main() {
 		}
 	}()
 
-	mongoDB.Ping(client)
-	ReadUsers(client)
+	twibbon_db, err := mongoDB.ConnectTwibbon(context.TODO(), client)
+	if err != nil {
+		panic(err)
+	}
+
+	userRepository := repository.NewUserRepository(twibbon_db)
+	user, err := userRepository.ReadUserByName("Muhammad Acla")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(user)
 }
