@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const uri = "mongodb://root:password@admin.localhost:27017/?timeoutMS=5000"
+
 type UserRepository struct {
 	coll *mongo.Collection
 }
