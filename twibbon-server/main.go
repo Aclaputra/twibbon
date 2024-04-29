@@ -26,7 +26,7 @@ func main() {
 	}
 
 	userRepository := repository.NewUserRepository(twibbon_db)
-	user, err := userRepository.ReadUserByName("Muhammad Acla")
+	user, err := userRepository.ReadByName("Muhammad Acla")
 	if err != nil {
 		panic(err)
 	}

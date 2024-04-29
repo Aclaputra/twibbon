@@ -16,7 +16,8 @@ type UserRepository struct {
 }
 
 type userRepository interface {
-	ReadUserByName(name string) (result models.User, err error)
+	ReadByName(name string) (result models.User, err error)
+	Create(user models.User) (err error)
 }
 
 func NewUserRepository(database *mongo.Database) *UserRepository {
@@ -48,7 +49,7 @@ func NewUserRepository(database *mongo.Database) *UserRepository {
 	}
 }
 
-func (u *UserRepository) ReadUserByName(name string) (result models.User, err error) {
+func (u *UserRepository) ReadByName(name string) (result models.User, err error) {
 	filter := bson.D{{"name", name}}
 	err = u.coll.FindOne(context.TODO(), filter).Decode(&result)
 
@@ -63,7 +64,7 @@ func (u *UserRepository) ReadUserByName(name string) (result models.User, err er
 	return
 }
 
-// func (u *UserRepository) CreateUser(user models.User) (result models.User, err error) {
-//
-// 	return
-// }
+func (u *UserRepository) Create(user models.User) (err error) {
+
+	return
+}

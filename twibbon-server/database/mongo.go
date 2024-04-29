@@ -44,7 +44,7 @@ func (m *MongoDB) ConnectTwibbon(ctx context.Context, client *mongo.Client) (db 
 func (m *MongoDB) Ping(client *mongo.Client) {
 	// Send a ping to confirm a successful connection
 	var result bson.M
-	if err := client.Database("admiss").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
+	if err := client.Database("user").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
 		panic(err)
 	}
 }
