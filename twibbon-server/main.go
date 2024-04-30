@@ -26,10 +26,13 @@ func main() {
 	}
 
 	userRepository := repository.NewUserRepository(twibbon_db)
+	twibbonRepository := repository.NewTwibbonRepository(twibbon_db)
 	user, err := userRepository.ReadByName("Muhammad Acla")
 	if err != nil {
 		panic(err)
 	}
+	twibbons, err := twibbonRepository.ReadAll()
 
 	fmt.Println(user)
+	fmt.Println(twibbons)
 }
