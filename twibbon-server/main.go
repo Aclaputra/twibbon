@@ -29,7 +29,8 @@ func main() {
 	twibbonRepository := repository.NewTwibbonRepository(twibbon_db)
 	user, err := userRepository.ReadByName("Muhammad Acla")
 	if err != nil {
-		panic(err)
+		fmt.Println("not found", err)
+		// panic(err)
 	}
 	twibbons, err := twibbonRepository.ReadAll()
 
